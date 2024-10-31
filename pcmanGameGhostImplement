@@ -1,0 +1,130 @@
+from p5 import *  
+
+
+WIDTH = 600
+HEIGHT = 400
+
+
+pacman_x = 50
+pacman_y = 300
+pacman_diameter = 100
+h = 0  
+o = 1  
+
+
+jump = False
+velocity = 0
+gravity = 1
+jump_force = -15
+
+# ancien "cactus"
+ghost_x = 500
+ghost_y = 300
+ghost_width = 60
+ghost_speed = 6
+#cactus_height = 50
+
+
+score = 0
+game_over = False
+
+def setup():
+    size(WIDTH, HEIGHT)  
+    title("Pac-Man Chrome")  
+
+
+
+def draw():
+    global pacman_y, velocity, jump, ghost_x, score, game_over, h, o
+
+    background(0)  
+    
+    
+    stroke(255)
+    line((0, 350), (WIDTH, 350))
+
+    
+    draw_pacman(pacman_x, pacman_y)
+
+    
+    if jump:
+        pacman_y += velocity 
+        velocity += gravity             
+        if pacman_y >= 300:
+            pacman_y = 300  
+            jump = False 
+            velocity = 0
+
+
+
+    # base du fantome
+    no_stroke()
+    fill(255,0,255)
+    circle(ghost_x, ghost_y, ghost_width)
+    fill(255,0,255)
+    rect((ghost_x - 30), ghost_y, 60, 40)
+
+    # les "pattes"
+    for i in range(0,4):
+        no_stroke()
+        fill(255,0,255)
+        circle((ghost_x - 22)+(15*i), (ghost_y + 41), 16)   # faire les pattes 4 fois 
+        
+    # yeux 
+    no_stroke()
+    fill(255)
+    ellipse((ghost_x - 22), ghost_y, 18, 28)
+    fill(255)
+    ellipse((ghost_x +8), ghost_y, 18, 28)
+
+    # pupilles
+    no_stroke()
+    fill(0)
+    ellipse((ghost_x - 25), ghost_y, 14, 16)
+    fill(0)
+    ellipse((ghost_x + 5), ghost_y, 14, 16)
+
+    
+    ghost_x -= ghost_speed
+    if ghost_x < -ghost_width: 
+        ghost_x = WIDTH 
+        score += 1 
+
+    # si pacman touche le fantome :
+    if (pacman_x + pacman_diameter / 2 > ghost_x) and (pacman_x < ghost_x + ghost_width) and (pacman_y + pacman_diameter / 2 > ghost_y):
+        game_over = True  
+
+    
+    fill(255)
+    text(f'Score: {score}', (10, 30))
+
+    
+    if game_over:
+        fill(255, 0, 0)
+        text('Game Over', (200, 200))
+        no_loop()                           # la partie s'arrete
+
+def key_pressed():
+    global jump, velocity
+    if key == ' ' and not jump:  
+        jump = True
+        velocity = jump_force  
+
+def draw_pacman(x, y):
+    global h, o
+
+    no_stroke()
+    fill(255, 255, 0)  # Pac-Man jaune
+    
+    
+    start_angle = radians(h)
+    stop_angle = radians(360 - h)
+    
+    arc((x, y), pacman_diameter, pacman_diameter, start_angle, stop_angle)  
+
+    
+    h += o  
+    if h >= 45 or h <= 0:  
+        o *= -1  
+
+run()
